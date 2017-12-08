@@ -26,6 +26,7 @@ import com.easemob.redpacketsdk.RPSendPacketCallback;
 import com.easemob.redpacketsdk.bean.RedPacketInfo;
 import com.easemob.redpacketsdk.constant.RPConstant;
 import com.easemob.redpacketui.utils.RPRedPacketUtil;
+import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMCmdMessageBody;
 import com.hyphenate.chat.EMGroup;
@@ -66,7 +67,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
     private static final int REQUEST_CODE_GROUP_DETAIL = 13;
     private static final int REQUEST_CODE_CONTEXT_MENU = 14;
     private static final int REQUEST_CODE_SELECT_AT_USER = 15;
-    
+
 
     private static final int MESSAGE_TYPE_SENT_VOICE_CALL = 1;
     private static final int MESSAGE_TYPE_RECV_VOICE_CALL = 2;
@@ -84,10 +85,10 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
     //end of red packet code
 
     /**
-     * if it is chatBot 
+     * if it is chatBot
      */
     private boolean isRobot;
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return super.onCreateView(inflater, container, savedInstanceState,
@@ -97,7 +98,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
     @Override
     protected void setUpView() {
         setChatFragmentHelper(this);
-        if (chatType == Constant.CHATTYPE_SINGLE) { 
+        if (chatType == Constant.CHATTYPE_SINGLE) {
             Map<String,RobotUser> robotMap = DemoHelper.getInstance().getRobotList();
             if(robotMap!=null && robotMap.containsKey(toChatUsername)){
                 isRobot = true;
@@ -119,7 +120,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
         ((EaseEmojiconMenu)inputMenu.getEmojiconMenu()).addEmojiconGroup(EmojiconExampleGroupData.getData());
         if(chatType == EaseConstant.CHATTYPE_GROUP){
             inputMenu.getPrimaryMenu().getEditText().addTextChangedListener(new TextWatcher() {
-                
+
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if(count == 1 && "@".equals(String.valueOf(s.charAt(start)))){
@@ -129,16 +130,16 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
                 }
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                    
+
                 }
                 @Override
                 public void afterTextChanged(Editable s) {
-                    
-                } 
+
+                }
             });
         }
     }
-    
+
     @Override
     protected void registerExtendMenuItem() {
         //use the menu in base class
@@ -157,19 +158,19 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
         }
         //end of red packet code
     }
-    
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_CONTEXT_MENU) {
             switch (resultCode) {
             case ContextMenuActivity.RESULT_CODE_COPY: // copy
-                clipboard.setPrimaryClip(ClipData.newPlainText(null, 
+                clipboard.setPrimaryClip(ClipData.newPlainText(null,
                         ((EMTextMessageBody) contextMenuMessage.getBody()).getMessage()));
                 break;
             case ContextMenuActivity.RESULT_CODE_DELETE: // delete
-                conversation.removeMessage(contextMenuMessage.getMsgId());
-                messageList.refresh();
+                getConversition().removeMessage(contextMenuMessage.getMsgId());
+                refresh();
                 break;
 
             case ContextMenuActivity.RESULT_CODE_FORWARD: // forward
@@ -190,7 +191,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
                             msgNotification.setAttribute(Constant.MESSAGE_TYPE_RECALL, true);
                             EMClient.getInstance().chatManager().recallMessage(contextMenuMessage);
                             EMClient.getInstance().chatManager().saveMessage(msgNotification);
-                            messageList.refresh();
+                            refresh();
                         } catch (final HyphenateException e) {
                             e.printStackTrace();
                             getActivity().runOnUiThread(new Runnable() {
@@ -243,7 +244,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
                 break;
             }
         }
-        
+
     }
 
     @Override
@@ -253,12 +254,12 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
             message.setAttribute("em_robot_message", isRobot);
         }
     }
-    
+
     @Override
     public EaseCustomChatRowProvider onSetCustomChatRowProvider() {
         return new CustomChatRowProvider();
     }
-  
+
 
     @Override
     public void onEnterToChatDetails() {
@@ -283,38 +284,53 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
         intent.putExtra("username", username);
         startActivity(intent);
     }
-    
+
     @Override
     public void onAvatarLongClick(String username) {
         inputAtUsername(username);
     }
-    
-    
+
+
     @Override
     public boolean onMessageBubbleClick(EMMessage message) {
         //消息框点击事件，demo这里不做覆盖，如需覆盖，return true
         //red packet code : 拆红包页面
         if (message.getBooleanAttribute(RPConstant.MESSAGE_ATTR_IS_RED_PACKET_MESSAGE, false)){
-            RedPacketUtil.openRedPacket(getActivity(), chatType, message, toChatUsername, messageList);
+            RedPacketUtil.openRedPacket(getActivity(), chatType, message, toChatUsername, new EMCallBack() {
+                @Override
+                public void onSuccess() {
+                    refresh();
+                }
+
+                @Override
+                public void onError(int code, String error) {
+                }
+
+                @Override
+                public void onProgress(int progress, String status) {
+                }
+            });
             return true;
         }
         //end of red packet code
         return false;
     }
-    @Override
-    public void onCmdMessageReceived(List<EMMessage> messages) {
-        //red packet code : 处理红包回执透传消息
-        for (EMMessage message : messages) {
-            EMCmdMessageBody cmdMsgBody = (EMCmdMessageBody) message.getBody();
-            String action = cmdMsgBody.action();//获取自定义action
-            if (action.equals(RPConstant.REFRESH_GROUP_RED_PACKET_ACTION)){
-                RedPacketUtil.receiveRedPacketAckMessage(message);
-                messageList.refresh();
-            }
-        }
-        //end of red packet code
-        super.onCmdMessageReceived(messages);
-    }
+
+    // TODO: receive rp cmd message
+//    @Override
+//    public void onCmdMessageReceived(List<EMMessage> messages) {
+//        //red packet code : 处理红包回执透传消息
+//        for (EMMessage message : messages) {
+//            EMCmdMessageBody cmdMsgBody = (EMCmdMessageBody) message.getBody();
+//            String action = cmdMsgBody.action();//获取自定义action
+//            if (action.equals(RPConstant.REFRESH_GROUP_RED_PACKET_ACTION)) {
+//                RedPacketUtil.receiveRedPacketAckMessage(message);
+//                refresh();
+//            }
+//        }
+//        //end of red packet code
+//        super.onCmdMessageReceived(messages);
+//    }
 
     @Override
     public void onMessageBubbleLongClick(EMMessage message) {
@@ -370,7 +386,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
         //keep exist extend menu
         return false;
     }
-    
+
     /**
      * select file
      */
@@ -386,7 +402,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
         }
         startActivityForResult(intent, REQUEST_CODE_SELECT_FILE);
     }
-    
+
     /**
      * make a voice call
      */
@@ -400,7 +416,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
             inputMenu.hideExtendMenuContainer();
         }
     }
-    
+
     /**
      * make a video call
      */
@@ -414,9 +430,9 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
             inputMenu.hideExtendMenuContainer();
         }
     }
-    
+
     /**
-     * chat row provider 
+     * chat row provider
      *
      */
     private final class CustomChatRowProvider implements EaseCustomChatRowProvider {

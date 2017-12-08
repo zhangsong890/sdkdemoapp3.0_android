@@ -81,7 +81,7 @@ public class DemoHelper {
      */
     public interface DataSyncListener {
         /**
-         * sync complete
+         * sync finishLoading
          * @param success true：data sync successful，false: failed to sync data
          */
         void onSyncComplete(boolean success);

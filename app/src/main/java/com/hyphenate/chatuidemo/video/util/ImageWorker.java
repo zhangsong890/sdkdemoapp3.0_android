@@ -363,7 +363,7 @@ public abstract class ImageWorker {
     }
 
     /**
-     * Called when the processing is complete and the final drawable should be 
+     * Called when the processing is finishLoading and the final drawable should be
      * set on the ImageView.
      *
      * @param imageView

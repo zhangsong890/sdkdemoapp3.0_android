@@ -21,6 +21,7 @@ import com.hyphenate.chat.EMCmdMessageBody;
 import com.hyphenate.chat.EMGroup;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.easeui.EaseConstant;
+import com.hyphenate.easeui.adapter.EaseChatAdapter;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.utils.EaseUserUtils;
 import com.hyphenate.easeui.widget.EaseChatMessageList;
@@ -111,7 +112,7 @@ public class RedPacketUtil {
      * @param toChatUsername 消息接收者id
      * @param messageList    EaseChatMessageList
      */
-    public static void openRedPacket(final FragmentActivity activity, final int chatType, final EMMessage message, final String toChatUsername, final EaseChatMessageList messageList) {
+    public static void openRedPacket(final FragmentActivity activity, final int chatType, final EMMessage message, final String toChatUsername, final EMCallBack callBack) {
         final ProgressDialog progressDialog = new ProgressDialog(activity);
         progressDialog.setCanceledOnTouchOutside(false);
         RPRedPacketUtil.getInstance().openRedPacket(wrapperRedPacketInfo(chatType, message), activity, new RPRedPacketUtil.RPOpenPacketCallback() {
@@ -134,22 +135,7 @@ public class RedPacketUtil {
                         EMClient.getInstance().chatManager().sendMessage(msg);
                     }
                 } else {
-                    sendRedPacketAckMessage(message, senderId, senderNickname, receiverId, receiverNickname, new EMCallBack() {
-                        @Override
-                        public void onSuccess() {
-                            messageList.refresh();
-                        }
-
-                        @Override
-                        public void onError(int i, String s) {
-
-                        }
-
-                        @Override
-                        public void onProgress(int i, String s) {
-
-                        }
-                    });
+                    sendRedPacketAckMessage(message, senderId, senderNickname, receiverId, receiverNickname, callBack);
                 }
             }
 
