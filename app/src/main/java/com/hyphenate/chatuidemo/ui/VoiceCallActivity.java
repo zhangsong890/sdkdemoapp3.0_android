@@ -239,7 +239,7 @@ public class VoiceCallActivity extends CallActivity implements OnClickListener {
                                         public void run() {
                                             Log.d("AAA", "CALL DISCONNETED");
                                             removeCallStateListener();
-                                            saveCallRecord();
+                                             saveCallRecord();
                                             Animation animation = new AlphaAnimation(1.0f, 0.0f);
                                             animation.setDuration(800);
                                             findViewById(R.id.root_layout).startAnimation(animation);

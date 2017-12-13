@@ -110,7 +110,7 @@ public class RedPacketUtil {
      * @param chatType       聊天类型
      * @param message        EMMessage
      * @param toChatUsername 消息接收者id
-     * @param messageList    EaseChatMessageList
+     * @param callBack       结果回调
      */
     public static void openRedPacket(final FragmentActivity activity, final int chatType, final EMMessage message, final String toChatUsername, final EMCallBack callBack) {
         final ProgressDialog progressDialog = new ProgressDialog(activity);
