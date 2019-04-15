@@ -1152,6 +1152,10 @@ public class ConferenceActivity extends BaseActivity implements EMConferenceList
     public void onRoleChanged(EMConferenceManager.EMConferenceRole role) {
     }
 
+    @Override
+    public void onAttributeUpdated(EMAttributeAction type, String key, String value) {
+    }
+
     private void openDebugPanel() {
         Animator animator = ObjectAnimator.ofFloat(toolsPanelView, "translationY", 0, toolsPanelView.getHeight());
         animator.setDuration(300).start();

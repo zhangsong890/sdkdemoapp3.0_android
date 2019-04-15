@@ -591,6 +591,10 @@ public class DemoHelper {
             @Override
             public void onRoleChanged(EMConferenceManager.EMConferenceRole role) {
             }
+
+            @Override
+            public void onAttributeUpdated(EMAttributeAction type, String key, String value) {
+            }
         });
         //register incoming call receiver
         appContext.registerReceiver(callReceiver, callFilter);    

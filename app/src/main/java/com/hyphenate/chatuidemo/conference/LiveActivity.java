@@ -1074,6 +1074,10 @@ public class LiveActivity extends BaseActivity implements EMConferenceListener {
         }
     }
 
+    @Override
+    public void onAttributeUpdated(EMAttributeAction type, String key, String value) {
+    }
+
     private void setRequestBtnState(int state) {
         btnState = state;
         if (state == STATE_AUDIENCE) {
