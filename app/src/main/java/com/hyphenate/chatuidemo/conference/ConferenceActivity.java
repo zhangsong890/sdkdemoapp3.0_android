@@ -432,6 +432,9 @@ public class ConferenceActivity extends BaseActivity implements EMConferenceList
         @Override
         public void onScreenModeChange(boolean isFullScreenMode, @Nullable View fullScreenView) {
             if (isFullScreenMode) { // 全屏模式
+                if (fullScreenView instanceof ConferenceMemberView) { // 清空SurfaceView的显示缓存
+                    ((ConferenceMemberView) fullScreenView).getSurfaceView().clearImage();
+                }
                 toolsPanelView.setBackgroundColor(getResources().getColor(R.color.color_transparent));
 
                 membersTV.setVisibility(View.INVISIBLE);
